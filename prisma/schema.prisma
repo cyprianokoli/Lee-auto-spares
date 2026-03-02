@@ -1,0 +1,64 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Part {
+  id                String   @id @default(uuid())
+  name              String
+  partNumber        String   @unique
+  brand             String
+  category          String
+  description       String?
+  priceUSD          Float
+  stockQuantity     Int      @default(0)
+  images            String   @default("[]")
+  compatibleModels  String   @default("[]")
+  isActive          Boolean  @default(true)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  orderItems        OrderItem[]
+}
+
+model Order {
+  id              String      @id @default(uuid())
+  customerName    String
+  phone           String
+  email           String?
+  deliveryAddress String
+  city            String
+  paymentMethod   String
+  totalUSD        Float
+  totalZWL        Float
+  exchangeRate    Float
+  status          String      @default("pending")
+  notes           String?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  items           OrderItem[]
+}
+
+model OrderItem {
+  id        String @id @default(uuid())
+  orderId   String
+  partId    String
+  quantity  Int
+  priceUSD  Float
+  order     Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  part      Part   @relation(fields: [partId], references: [id])
+}
+
+model ExchangeRate {
+  id        String   @id @default(uuid())
+  usdToZwl  Float
+  date      DateTime @default(now())
+}
+
+model AdminUser {
+  id       String @id @default(uuid())
+  username String @unique
+  password String
+}
